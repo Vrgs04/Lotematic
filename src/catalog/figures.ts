@@ -1,0 +1,5 @@
+import type {Figure} from '../types';
+const names=['El Gallo','El Diablito','La Dama','El Catrín','El Paraguas','La Sirena','La Escalera','La Botella','El Barril','El Árbol','El Melón','El Valiente','El Gorrito','La Muerte','La Pera','La Bandera','El Bandolón','El Violoncello','La Garza','El Pájaro','La Mano','La Bota','La Luna','El Cotorro','El Borracho','El Negrito','El Corazón','La Sandía','El Tambor','El Camarón','Las Jaras','El Músico','La Araña','El Soldado','La Estrella','El Cazo','El Mundo','El Apache','El Nopal','El Alacrán','La Rosa','La Calavera','La Campana','El Cantarito','El Venado','El Sol','La Corona','La Chalupa','El Pino','El Pescado','La Palma','La Maceta','El Arpa','La Rana'];
+export const normalize=(s:string)=>s.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+export const figures:Figure[]=names.map((name,i)=>{const slug=normalize(name).replace(/\s/g,'-');const bare=normalize(name).replace(/^(el|la|las)\s/,'');return{id:i+1,number:i+1,name,slug,aliases:[normalize(name),bare],imagePath:`/cards/${slug}.webp`}});
+export const figureById=(id:number)=>figures[id-1];

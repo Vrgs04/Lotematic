@@ -1,0 +1,8 @@
+import Dexie,{type EntityTable} from 'dexie'; import type {AppSettings,GameSession,LoteriaBoard} from '../types';
+export const db=new Dexie('lotematica') as Dexie&{boards:EntityTable<LoteriaBoard,'id'>;sessions:EntityTable<GameSession,'id'>;settings:EntityTable<AppSettings,'id'>};
+db.version(1).stores({boards:'id,updatedAt',sessions:'id,startedAt',settings:'id'});
+export const defaults:AppSettings={id:'main',sound:true,vibration:true,sensitivity:35,highConfidence:true,maxBoards:20};
+export async function exportBackup(){return JSON.stringify({version:1,exportedAt:new Date().toISOString(),boards:await db.boards.toArray(),settings:await db.settings.get('main')},null,2)}
+export function validateBackup(raw:string){const x:unknown=JSON.parse(raw);if(!x||typeof x!=='object'||!('boards' in x)||!Array.isArray((x as {boards:unknown}).boards))throw new Error('Respaldo inválido');return x as {boards:LoteriaBoard[];settings?:AppSettings}}
+export async function importBackup(raw:string){const x=validateBackup(raw);for(const b of x.boards){const e=validateBoard(b);if(e.length)throw new Error(`${b.name}: ${e.join(', ')}`)}await db.transaction('rw',db.boards,db.settings,async()=>{await db.boards.bulkPut(x.boards);if(x.settings)await db.settings.put(x.settings)});return x.boards.length}
+export function validateBoard(b:Pick<LoteriaBoard,'cells'>){const errors:string[]=[];if(b.cells.length!==16)errors.push('La tabla debe tener 16 casillas');if(new Set(b.cells.map(c=>c.position)).size!==b.cells.length)errors.push('Hay posiciones repetidas');if(new Set(b.cells.map(c=>c.figureId)).size!==b.cells.length)errors.push('Hay figuras repetidas');if(b.cells.some(c=>c.position<0||c.position>15||c.figureId<1||c.figureId>54))errors.push('Hay casillas inválidas');return errors}

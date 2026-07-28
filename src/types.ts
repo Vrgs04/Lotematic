@@ -1,0 +1,9 @@
+export type Figure={id:number;number:number;name:string;slug:string;aliases:string[];imagePath:string};
+export type FigureLayout='horizontal'|'vertical'|'diagonal-a'|'diagonal-b';
+export type BoardCell={position:number;figureId:number;layout:FigureLayout};
+export type LoteriaBoard={id:string;name:string;cells:BoardCell[];createdAt:string;updatedAt:string};
+export type GameMode='full-board'|'row'|'column'|'diagonal'|'four-corners';
+export type DetectionSource='voice'|'manual';
+export type DetectedFigure={id:string;figureId:number;source:DetectionSource;confidence?:number;transcript?:string;timestamp:string};
+export type GameSession={id:string;boardIds:string[];mode:GameMode;detectedFigures:DetectedFigure[];startedAt:string;finishedAt?:string};
+export type AppSettings={id:'main';sound:boolean;vibration:boolean;sensitivity:number;highConfidence:boolean;maxBoards:number};

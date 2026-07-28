@@ -1,0 +1,4 @@
+import {figures,normalize} from '../catalog/figures';
+const distance=(a:string,b:string)=>{const d=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const old=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old}}return d[b.length]};
+export type Match={figureId:number;confidence:number;ambiguous?:boolean};
+export function matchTranscript(raw:string):Match|null{const q=normalize(raw);if(!q||q.split(' ').length>5||q.length>35)return null;const exact=figures.filter(f=>f.aliases.includes(q));if(exact.length===1)return{figureId:exact[0].id,confidence:1};const scores=figures.map(f=>({id:f.id,score:Math.max(...f.aliases.map(a=>1-distance(q,a)/Math.max(q.length,a.length)))})).sort((a,b)=>b.score-a.score);if(scores[0].score<.82||scores[0].score-scores[1].score<.08)return null;return{figureId:scores[0].id,confidence:scores[0].score}}
